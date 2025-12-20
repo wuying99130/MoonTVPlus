@@ -298,6 +298,7 @@ interface SiteConfig {
   DanmakuApiBase: string;
   DanmakuApiToken: string;
   TMDBApiKey?: string;
+  TMDBProxy?: string;
   EnableComments: boolean;
   EnableRegistration?: boolean;
   RegistrationRequireTurnstile?: boolean;
@@ -4601,6 +4602,7 @@ const SiteConfigComponent = ({
     DanmakuApiBase: 'http://localhost:9321',
     DanmakuApiToken: '87654321',
     TMDBApiKey: '',
+    TMDBProxy: '',
     EnableComments: false,
     EnableRegistration: false,
     RegistrationRequireTurnstile: false,
@@ -4684,6 +4686,7 @@ const SiteConfigComponent = ({
           config.SiteConfig.DanmakuApiBase || 'http://localhost:9321',
         DanmakuApiToken: config.SiteConfig.DanmakuApiToken || '87654321',
         TMDBApiKey: config.SiteConfig.TMDBApiKey || '',
+        TMDBProxy: config.SiteConfig.TMDBProxy || '',
         EnableComments: config.SiteConfig.EnableComments || false,
       });
     }
@@ -5240,6 +5243,28 @@ const SiteConfigComponent = ({
             >
               TMDB API 设置页面
             </a>
+          </p>
+        </div>
+
+        {/* TMDB Proxy */}
+        <div>
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+            TMDB 代理
+          </label>
+          <input
+            type='text'
+            placeholder='请输入代理地址（可选）'
+            value={siteSettings.TMDBProxy}
+            onChange={(e) =>
+              setSiteSettings((prev) => ({
+                ...prev,
+                TMDBProxy: e.target.value,
+              }))
+            }
+            className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent'
+          />
+          <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
+            配置代理服务器地址，用于访问 TMDB API（可选）
           </p>
         </div>
       </div>

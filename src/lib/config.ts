@@ -223,6 +223,7 @@ async function getInitConfig(configFile: string, subConfig: {
       DanmakuApiToken: process.env.DANMAKU_API_TOKEN || '87654321',
       // TMDB配置
       TMDBApiKey: '',
+      TMDBProxy: '',
       // 评论功能开关
       EnableComments: false,
     },

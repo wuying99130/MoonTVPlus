@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,no-console */
 
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
 export interface TMDBMovie {
   id: number;
   title: string;
@@ -48,21 +50,24 @@ interface TMDBTVAiringTodayResponse {
  * @param apiKey - TMDB API Key
  * @param page - 页码
  * @param region - 地区代码，默认 CN (中国)
+ * @param proxy - 代理服务器地址
  * @returns 即将上映的电影列表
  */
 export async function getTMDBUpcomingMovies(
   apiKey: string,
   page: number = 1,
-  region: string = 'CN'
+  region: string = 'CN',
+  proxy?: string
 ): Promise<{ code: number; list: TMDBMovie[] }> {
   try {
     if (!apiKey) {
       return { code: 400, list: [] };
     }
 
-    const response = await fetch(
-      `https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}&language=zh-CN&page=${page}&region=${region}`
-    );
+    const url = `https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}&language=zh-CN&page=${page}&region=${region}`;
+    const fetchOptions: RequestInit = proxy ? { agent: new HttpsProxyAgent(proxy) as any } : {};
+
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       console.error('TMDB API 请求失败:', response.status, response.statusText);
@@ -85,11 +90,13 @@ export async function getTMDBUpcomingMovies(
  * 获取正在播出的电视剧
  * @param apiKey - TMDB API Key
  * @param page - 页码
+ * @param proxy - 代理服务器地址
  * @returns 正在播出的电视剧列表
  */
 export async function getTMDBUpcomingTVShows(
   apiKey: string,
-  page: number = 1
+  page: number = 1,
+  proxy?: string
 ): Promise<{ code: number; list: TMDBTVShow[] }> {
   try {
     if (!apiKey) {
@@ -97,9 +104,10 @@ export async function getTMDBUpcomingTVShows(
     }
 
     // 使用 on_the_air 接口获取正在播出的电视剧
-    const response = await fetch(
-      `https://api.themoviedb.org/3/tv/on_the_air?api_key=${apiKey}&language=zh-CN&page=${page}`
-    );
+    const url = `https://api.themoviedb.org/3/tv/on_the_air?api_key=${apiKey}&language=zh-CN&page=${page}`;
+    const fetchOptions: RequestInit = proxy ? { agent: new HttpsProxyAgent(proxy) as any } : {};
+
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       console.error('TMDB TV API 请求失败:', response.status, response.statusText);
@@ -121,10 +129,12 @@ export async function getTMDBUpcomingTVShows(
 /**
  * 获取即将上映/播出的内容（电影+电视剧）
  * @param apiKey - TMDB API Key
+ * @param proxy - 代理服务器地址
  * @returns 统一格式的即将上映/播出列表
  */
 export async function getTMDBUpcomingContent(
-  apiKey: string
+  apiKey: string,
+  proxy?: string
 ): Promise<{ code: number; list: TMDBItem[] }> {
   try {
     if (!apiKey) {
@@ -133,8 +143,8 @@ export async function getTMDBUpcomingContent(
 
     // 并行获取电影和电视剧数据
     const [moviesResult, tvShowsResult] = await Promise.all([
-      getTMDBUpcomingMovies(apiKey),
-      getTMDBUpcomingTVShows(apiKey),
+      getTMDBUpcomingMovies(apiKey, 1, 'CN', proxy),
+      getTMDBUpcomingTVShows(apiKey, 1, proxy),
     ]);
 
     // 检查是否有错误
